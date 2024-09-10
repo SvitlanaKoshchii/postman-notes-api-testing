@@ -26,4 +26,4 @@ jobs:
 
     - name: Run Postman Collection
       run: |
-        newman run postman-notes-api-testing/NotesAPI.postman_collection.json -e postman-notes-api-testing/NotesAPI_Environment.postman_environment.json
+        newman run postman-notes-api-testing/NotesAPI.postman_collection.json -e postman-notes-api-testing/NotesAPIenvironment.postman_environment.json
