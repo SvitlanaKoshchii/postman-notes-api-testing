@@ -24,8 +24,10 @@ jobs:
     - name: Install Newman
       run: npm install -g newman
 
+      - name: List files
+        run: |
+    ls -l postman-notes-api-testing
+
     - name: Run Postman Collection
       run: |
-        newman run postman-notes-api-testing/Notes API.postman_collection.json -e postman-notes-api-testing/Notes API Environment.postman_environment.json
-      env:
-        POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+        newman run postman-notes-api-testing/Notes_API.postman_collection.json -e postman-notes-api-testing/Notes_API_Environment.postman_environment.json
