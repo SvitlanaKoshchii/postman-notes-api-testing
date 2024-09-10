@@ -1,0 +1,1627 @@
+{
+	"info": {
+		"_postman_id": "e876b4a2-5625-4e63-b8ce-120e5b95b399",
+		"name": "Notes API",
+		"description": "This collection is dedicated to testing the [Notes API](https://practice.expandtesting.com/notes/api/api-docs/#/), which provides endpoints for managing users and notes within the system. It serves as a comprehensive guide to validate the API's functionality, structure, and performance. The tests included in this collection ensure that each endpoint behaves as expected, maintaining data integrity and secure interactions between the client and server.\n\n#### Key Features:\n\n- **Health Check**: Verifies the API’s availability and operational status.\n    \n- **User Management**: Includes endpoints for user creation, login, logout, updating profiles, and account deletion.\n    \n- **Notes Management**: Covers the full lifecycle of notes, including creating, retrieving, updating, and deleting notes.\n    \n- **Response Validation**: Ensures that response codes, headers, and content match expected standards for each request.\n    \n- **Performance Metrics**: Measures response times to ensure the API meets performance requirements.\n    \n\nThis collection supports both functional and non-functional testing, providing a robust framework for ensuring the reliability and efficiency of the Notes API.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14780037"
+	},
+	"item": [
+		{
+			"name": "check API health",
+			"item": [
+				{
+					"name": "health-check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 200\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    console.log(\"Response status:\", pm.response.status);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to сheck that response body matches JSON schema if response code is 200\r",
+									"if (pm.response.code === 200) {\r",
+									"    var schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"success\": { \"type\": \"boolean\" },\r",
+									"            \"status\": { \"type\": \"integer\" },\r",
+									"            \"message\": { \"type\": \"string\" },\r",
+									"        },\r",
+									"        \"required\": [\"success\", \"status\", \"message\"],\r",
+									"        \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"    };\r",
+									"\r",
+									"    // check if the schema is valid\r",
+									"    pm.test(\"Schema is valid\", function() {\r",
+									"        pm.response.to.have.jsonSchema(schema);\r",
+									"        console.log(\"Schema is valid\");\r",
+									"    });\r",
+									"} else {\r",
+									"    console.log(\"Schema validation skipped due to status code\", pm.response.code);\r",
+									"}\r",
+									"\r",
+									"// check response message is 'Notes API is Running'\r",
+									"pm.test(\"Response message is 'Notes API is Running'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"Notes API is Running\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/health-check",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"health-check"
+							]
+						},
+						"description": "### Health Check\n\nThis endpoint is used to perform a health check on the system.\n\n#### Request\n\nThere are no request parameters for this endpoint.\n\n#### Response\n\nThe response is in JSON format and has the following schema:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"success\": {\n      \"type\": \"boolean\"\n    },\n    \"status\": {\n      \"type\": \"integer\"\n    },\n    \"message\": {\n      \"type\": \"string\"\n    }\n  }\n}\n\n ```\n\nThe response body contains the following fields:\n\n- `success` (boolean): Indicates the success of the health check.\n    \n- `status` (integer): Represents the status of the health check.\n    \n- `message` (string): Provides additional information about the health check status."
+					},
+					"response": []
+				}
+			],
+			"description": "This folder contains requests designed to test the **Notes API health check** functionality, ensuring the API is running and responsive. These requests target the following endpoint:\n\n`https://practice.expandtesting.com/notes/api/health-check`\n\nThe health check verifies that the API server is operational and can accept requests, helping to confirm its availability before proceeding with further testing."
+		},
+		{
+			"name": "check register user",
+			"item": [
+				{
+					"name": "positive - create user 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 201\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to сheck that response body matches JSON schema if response code is 201\r",
+									"if (pm.response.code === 201) {\r",
+									"    var schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"success\": { \"type\": \"boolean\" },\r",
+									"            \"status\": { \"type\": \"integer\" },\r",
+									"            \"message\": { \"type\": \"string\" },\r",
+									"            \"data\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"string\" },\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"email\": { \"type\": \"string\", \"format\": \"email\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\", \"email\"],\r",
+									"                \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"success\", \"status\", \"message\", \"data\"],\r",
+									"        \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"    };\r",
+									"\r",
+									"    // check if the schema is valid\r",
+									"    pm.test(\"Schema is valid\", function() {\r",
+									"        pm.response.to.have.jsonSchema(schema);\r",
+									"    });\r",
+									"} else {\r",
+									"    console.log(\"Schema validation skipped due to status code\", pm.response.code);\r",
+									"}\r",
+									"\r",
+									"// test to check response message is 'User account created successfully'\r",
+									"pm.test(\"Response message is 'User account created successfully'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"User account created successfully\");\r",
+									"});\r",
+									"\r",
+									"// test to check expected values are present in responce for newly created user\r",
+									"pm.test(\"Returns correct details for user\", function () {\r",
+									"    const response  = pm.response.json();\r",
+									"    const userData = response.data;  // access the nested data object\r",
+									"\r",
+									"    pm.expect(userData.name).to.equal(\"sv_test_user1\");\r",
+									"    pm.expect(userData.email).to.equal(\"sv_test_user1@email.com\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "sv_test_user1",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "sv_test_user1@email.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "sv_test_user1_pw",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						},
+						"description": "### Register User\n\nThis endpoint allows users to register by providing their name, email, and password.\n\n#### Request Body\n\n- `name` (text): The name of the user.\n    \n- `email` (text): The email address of the user.\n    \n- `password` (text): The password for the user account.\n    \n\n#### Response\n\nThe response for this request is a JSON object conforming to the following schema:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"userId\": {\n      \"type\": \"string\"\n    },\n    \"message\": {\n      \"type\": \"string\"\n    }\n  }\n}\n\n ```"
+					},
+					"response": []
+				},
+				{
+					"name": "positive - create user 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 201\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to сheck that response body matches JSON schema if response code is 201\r",
+									"if (pm.response.code === 201) {\r",
+									"    var schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"success\": { \"type\": \"boolean\" },\r",
+									"            \"status\": { \"type\": \"integer\" },\r",
+									"            \"message\": { \"type\": \"string\" },\r",
+									"            \"data\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"string\" },\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"email\": { \"type\": \"string\", \"format\": \"email\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\", \"email\"],\r",
+									"                \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"success\", \"status\", \"message\", \"data\"],\r",
+									"        \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"    };\r",
+									"\r",
+									"    // check if the schema is valid\r",
+									"    pm.test(\"Schema is valid\", function() {\r",
+									"        pm.response.to.have.jsonSchema(schema);\r",
+									"    });\r",
+									"} else {\r",
+									"    console.log(\"Schema validation skipped due to status code\", pm.response.code);\r",
+									"}\r",
+									"\r",
+									"// test to check response message is 'User account created successfully'\r",
+									"pm.test(\"Response message is 'User account created successfully'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"User account created successfully\");\r",
+									"});\r",
+									"\r",
+									"// test to check expected values are present in responce for newly created user\r",
+									"pm.test(\"Returns correct details for user\", function () {\r",
+									"    const response  = pm.response.json();\r",
+									"    const userData = response.data;  // access the nested data object\r",
+									"\r",
+									"    pm.expect(userData.name).to.equal(\"sv_test_user2\");\r",
+									"    pm.expect(userData.email).to.equal(\"sv_test_user2@email.com\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "sv_test_user2",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "sv_test_user2@email.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "sv_test_user2_pw",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						},
+						"description": "### Register User\n\nThis endpoint allows users to register by providing their name, email, and password.\n\n#### Request Body\n\n- `name` (text) - The name of the user.\n    \n- `email` (text) - The email address of the user.\n    \n- `password` (text) - The password for the user account.\n    \n\n#### Response\n\nThe response for this request is a JSON object conforming to the following schema:\n\n``` json\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"userId\": {\n      \"type\": \"string\"\n    },\n    \"message\": {\n      \"type\": \"string\"\n    }\n  }\n}\n\n ```"
+					},
+					"response": []
+				},
+				{
+					"name": "negative - create user with already existed email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 409\r",
+									"pm.test(\"Status code is 409\", function () {\r",
+									"    pm.response.to.have.status(409);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to сheck that response body matches JSON schema if response code is 201\r",
+									"if (pm.response.code === 201) {\r",
+									"    var schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"success\": { \"type\": \"boolean\" },\r",
+									"            \"status\": { \"type\": \"integer\" },\r",
+									"            \"message\": { \"type\": \"string\" },\r",
+									"            \"data\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"string\" },\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"email\": { \"type\": \"string\", \"format\": \"email\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\", \"email\"],\r",
+									"                \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"success\", \"status\", \"message\", \"data\"],\r",
+									"        \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"    };\r",
+									"\r",
+									"    // check if the schema is valid\r",
+									"    pm.test(\"Schema is valid\", function() {\r",
+									"        pm.response.to.have.jsonSchema(schema);\r",
+									"    });\r",
+									"} else {\r",
+									"    console.log(\"Schema validation skipped due to status code\", pm.response.code);\r",
+									"}\r",
+									"\r",
+									"// test to check response message is 'An account already exists with the same email address'\r",
+									"pm.test(\"Response message is 'An account already exists with the same email address'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"An account already exists with the same email address\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "sv_test_user2",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "sv_test_user2@email.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "sv_test_user2_pw",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "negative - create user - name empty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 409\r",
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to сheck that response body matches JSON schema if response code is 201\r",
+									"if (pm.response.code === 201) {\r",
+									"    var schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"success\": { \"type\": \"boolean\" },\r",
+									"            \"status\": { \"type\": \"integer\" },\r",
+									"            \"message\": { \"type\": \"string\" },\r",
+									"            \"data\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"string\" },\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"email\": { \"type\": \"string\", \"format\": \"email\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\", \"email\"],\r",
+									"                \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"success\", \"status\", \"message\", \"data\"],\r",
+									"        \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"    };\r",
+									"\r",
+									"    // check if the schema is valid\r",
+									"    pm.test(\"Schema is valid\", function() {\r",
+									"        pm.response.to.have.jsonSchema(schema);\r",
+									"    });\r",
+									"} else {\r",
+									"    console.log(\"Schema validation skipped due to status code\", pm.response.code);\r",
+									"}\r",
+									"\r",
+									"// test to check response message is 'User name must be between 4 and 30 characters'\r",
+									"pm.test(\"Response message is 'User name must be between 4 and 30 characters'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"User name must be between 4 and 30 characters\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "sv_test_user2@email.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "sv_test_user2_pw",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "negative - create user - name skipped",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 409\r",
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to сheck that response body matches JSON schema if response code is 201\r",
+									"if (pm.response.code === 201) {\r",
+									"    var schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"success\": { \"type\": \"boolean\" },\r",
+									"            \"status\": { \"type\": \"integer\" },\r",
+									"            \"message\": { \"type\": \"string\" },\r",
+									"            \"data\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"string\" },\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"email\": { \"type\": \"string\", \"format\": \"email\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\", \"email\"],\r",
+									"                \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"success\", \"status\", \"message\", \"data\"],\r",
+									"        \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"    };\r",
+									"\r",
+									"    // check if the schema is valid\r",
+									"    pm.test(\"Schema is valid\", function() {\r",
+									"        pm.response.to.have.jsonSchema(schema);\r",
+									"    });\r",
+									"} else {\r",
+									"    console.log(\"Schema validation skipped due to status code\", pm.response.code);\r",
+									"}\r",
+									"\r",
+									"// test to check response message is 'User name must be between 4 and 30 characters'\r",
+									"pm.test(\"Response message is 'User name must be between 4 and 30 characters'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"User name must be between 4 and 30 characters\");\r",
+									"});\r",
+									"var template = `\r",
+									"<style type=\"text/css\">\r",
+									"    .tftable {font-size:14px;color:#333333;width:100%;border-width: 1px;border-color: #87ceeb;border-collapse: collapse;}\r",
+									"    .tftable th {font-size:18px;background-color:#87ceeb;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;text-align:left;}\r",
+									"    .tftable tr {background-color:#ffffff;}\r",
+									"    .tftable td {font-size:14px;border-width: 1px;padding: 8px;border-style: solid;border-color: #87ceeb;}\r",
+									"    .tftable tr:hover {background-color:#e0ffff;}\r",
+									"</style>\r",
+									"\r",
+									"<table class=\"tftable\" border=\"1\">\r",
+									"    <tr>\r",
+									"        <th>Success</th>\r",
+									"        <th>Status</th>\r",
+									"        <th>Message</th>\r",
+									"    </tr>\r",
+									"    <tr>\r",
+									"        <td>{{response.success}}</td>\r",
+									"        <td>{{response.status}}</td>\r",
+									"        <td>{{response.message}}</td>\r",
+									"    </tr>\r",
+									"</table>\r",
+									"`;\r",
+									"\r",
+									"function constructVisualizerPayload() {\r",
+									"    return {response: pm.response.json()}\r",
+									"}\r",
+									"\r",
+									"pm.visualizer.set(template, constructVisualizerPayload());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "sv_test_user2@email.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "sv_test_user2_pw",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "negative - create user - name < 4 chars",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 409\r",
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to сheck that response body matches JSON schema if response code is 201\r",
+									"if (pm.response.code === 201) {\r",
+									"    var schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"success\": { \"type\": \"boolean\" },\r",
+									"            \"status\": { \"type\": \"integer\" },\r",
+									"            \"message\": { \"type\": \"string\" },\r",
+									"            \"data\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"string\" },\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"email\": { \"type\": \"string\", \"format\": \"email\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\", \"email\"],\r",
+									"                \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"success\", \"status\", \"message\", \"data\"],\r",
+									"        \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"    };\r",
+									"\r",
+									"    // check if the schema is valid\r",
+									"    pm.test(\"Schema is valid\", function() {\r",
+									"        pm.response.to.have.jsonSchema(schema);\r",
+									"    });\r",
+									"} else {\r",
+									"    console.log(\"Schema validation skipped due to status code\", pm.response.code);\r",
+									"}\r",
+									"\r",
+									"// test to check response message is 'User name must be between 4 and 30 characters'\r",
+									"pm.test(\"Response message is 'User name must be between 4 and 30 characters'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"User name must be between 4 and 30 characters\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "abc",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "sv_test_user2@email.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "sv_test_user2_pw",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "negative - create user - name > 30 chars",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 409\r",
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to сheck that response body matches JSON schema if response code is 201\r",
+									"if (pm.response.code === 201) {\r",
+									"    var schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"success\": { \"type\": \"boolean\" },\r",
+									"            \"status\": { \"type\": \"integer\" },\r",
+									"            \"message\": { \"type\": \"string\" },\r",
+									"            \"data\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"string\" },\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"email\": { \"type\": \"string\", \"format\": \"email\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\", \"email\"],\r",
+									"                \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"success\", \"status\", \"message\", \"data\"],\r",
+									"        \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"    };\r",
+									"\r",
+									"    // check if the schema is valid\r",
+									"    pm.test(\"Schema is valid\", function() {\r",
+									"        pm.response.to.have.jsonSchema(schema);\r",
+									"    });\r",
+									"} else {\r",
+									"    console.log(\"Schema validation skipped due to status code\", pm.response.code);\r",
+									"}\r",
+									"\r",
+									"// test to check response message is 'User name must be between 4 and 30 characters'\r",
+									"pm.test(\"Response message is 'User name must be between 4 and 30 characters'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"User name must be between 4 and 30 characters\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "qwertyuiopasdfghjklzxcvbnmqwert",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "sv_test_user2@email.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "sv_test_user2_pw",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "negative - create user - email empty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 409\r",
+									"pm.test(\"Status code is 409\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to сheck that response body matches JSON schema if response code is 201\r",
+									"if (pm.response.code === 201) {\r",
+									"    var schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"success\": { \"type\": \"boolean\" },\r",
+									"            \"status\": { \"type\": \"integer\" },\r",
+									"            \"message\": { \"type\": \"string\" },\r",
+									"            \"data\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"string\" },\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"email\": { \"type\": \"string\", \"format\": \"email\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\", \"email\"],\r",
+									"                \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"success\", \"status\", \"message\", \"data\"],\r",
+									"        \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"    };\r",
+									"\r",
+									"    // check if the schema is valid\r",
+									"    pm.test(\"Schema is valid\", function() {\r",
+									"        pm.response.to.have.jsonSchema(schema);\r",
+									"    });\r",
+									"} else {\r",
+									"    console.log(\"Schema validation skipped due to status code\", pm.response.code);\r",
+									"}\r",
+									"\r",
+									"// test to check response message is 'A valid email address is required'\r",
+									"pm.test(\"A valid email address is required'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"A valid email address is required\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "sv_test_user2",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "sv_test_user2_pw",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "negative - create user - email skipped",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 409\r",
+									"pm.test(\"Status code is 409\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to сheck that response body matches JSON schema if response code is 201\r",
+									"if (pm.response.code === 201) {\r",
+									"    var schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"success\": { \"type\": \"boolean\" },\r",
+									"            \"status\": { \"type\": \"integer\" },\r",
+									"            \"message\": { \"type\": \"string\" },\r",
+									"            \"data\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"string\" },\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"email\": { \"type\": \"string\", \"format\": \"email\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\", \"email\"],\r",
+									"                \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"success\", \"status\", \"message\", \"data\"],\r",
+									"        \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"    };\r",
+									"\r",
+									"    // check if the schema is valid\r",
+									"    pm.test(\"Schema is valid\", function() {\r",
+									"        pm.response.to.have.jsonSchema(schema);\r",
+									"    });\r",
+									"} else {\r",
+									"    console.log(\"Schema validation skipped due to status code\", pm.response.code);\r",
+									"}\r",
+									"\r",
+									"// test to check response message is 'A valid email address is required'\r",
+									"pm.test(\"A valid email address is required'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"A valid email address is required\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "sv_test_user2",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "sv_test_user2_pw",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "negative - create user - email wrong format",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 409\r",
+									"pm.test(\"Status code is 409\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to сheck that response body matches JSON schema if response code is 201\r",
+									"if (pm.response.code === 201) {\r",
+									"    var schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"success\": { \"type\": \"boolean\" },\r",
+									"            \"status\": { \"type\": \"integer\" },\r",
+									"            \"message\": { \"type\": \"string\" },\r",
+									"            \"data\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"string\" },\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"email\": { \"type\": \"string\", \"format\": \"email\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\", \"email\"],\r",
+									"                \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"success\", \"status\", \"message\", \"data\"],\r",
+									"        \"additionalProperties\": false  // Ensure no additional properties are allowed\r",
+									"    };\r",
+									"\r",
+									"    // check if the schema is valid\r",
+									"    pm.test(\"Schema is valid\", function() {\r",
+									"        pm.response.to.have.jsonSchema(schema);\r",
+									"    });\r",
+									"} else {\r",
+									"    console.log(\"Schema validation skipped due to status code\", pm.response.code);\r",
+									"}\r",
+									"\r",
+									"// test to check response message is 'A valid email address is required'\r",
+									"pm.test(\"A valid email address is required'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"A valid email address is required\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "sv_test_user2",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "testtesttestgmail.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "sv_test_user2_pw",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "This folder contains requests to test the user registration functionality with various data sets in the request body, targeting the endpoint:\n\n**`https://practice.expandtesting.com/notes/api/health-check`**\n\nThe required data fields for user registration are as follows:\n\n| **field** | **type** | **is required?** | **rule** | **description** |\n| --- | --- | --- | --- | --- |\n| name | text | yes | 4 - 30 characters | The name of the user |\n| email | text | yes | email format | The email address of the user |\n| password | text | yes | 4 - 30 alphanumeric | The password for the user account |\n\nBoth positive and negative scenarios are covered, including:\n\n- Registering a user with valid data (positive case)\n    \n- Attempting to register a user with an already existing email (negative case)"
+		},
+		{
+			"name": "login",
+			"item": [
+				{
+					"name": "positive - login user 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 200\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to check response message is 'Login successful'\r",
+									"pm.test(\"Response message is 'Login successful'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"Login successful\");\r",
+									"});\r",
+									"\r",
+									"\r",
+									"// save the token and user ID to environment variables\r",
+									"if (pm.response.code === 200 && pm.response.json().success) {\r",
+									"    pm.environment.set(\"authToken_userId1\", pm.response.json().data.token);\r",
+									"    pm.environment.set(\"userId_1\", pm.response.json().data.id);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "sv_test_user1@email.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "sv_test_user1_pw",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/users/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "delete user",
+			"item": [
+				{
+					"name": "positive - delete user 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 200\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to check response message is 'Account successfully deleted'\r",
+									"pm.test(\"Response message is 'Account successfully deleted'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"Account successfully deleted\");\r",
+									"});\r",
+									"\r",
+									"// clean up token and user_id1 valiables values\r",
+									"console.log(\"Delete User Account Response:\");\r",
+									"console.log(\"Status: \" + pm.response.code);\r",
+									"console.log(\"Response Body: \" + JSON.stringify(pm.response.json()));\r",
+									"\r",
+									"if (pm.response.code === 200 && pm.response.json().success) {\r",
+									"    console.log(\"Account deletion successful. Clearing authToken and userId.\");\r",
+									"    pm.environment.unset(\"authToken_userId1\");\r",
+									"    pm.environment.unset(\"userId_1\");\r",
+									"} else {\r",
+									"    console.log(\"Account deletion failed or unexpected response.\");\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken_userId1}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/users/delete-account",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"delete-account"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "negative - delete already deleted user 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 200\r",
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to check response message is 'Access token is not valid or has expired, you will need to login'\r",
+									"pm.test(\"Response message is 'Access token is not valid or has expired, you will need to login'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"Access token is not valid or has expired, you will need to login\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-auth-token",
+								"value": "{{authToken_userId1}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/users/delete-account",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"delete-account"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "negative - delete without token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// test to check response status code is 200\r",
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"// test to check response time\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"    console.log(\"Response time:\", pm.response.responseTime);\r",
+									"});\r",
+									"\r",
+									"// test to check response message is 'No authentication token specified in x-auth-token header'\r",
+									"pm.test(\"Response message is 'No authentication token specified in x-auth-token header'\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"No authentication token specified in x-auth-token header\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/users/delete-account",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"users",
+								"delete-account"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "clean up test data",
+			"item": [
+				{
+					"name": "delete user 2",
+					"item": [
+						{
+							"name": "positive - login user 2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// test to check response status code is 200\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// test to check response time\r",
+											"pm.test(\"Response time is less than 1000ms\", function () {\r",
+											"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+											"    console.log(\"Response time:\", pm.response.responseTime);\r",
+											"});\r",
+											"\r",
+											"// test to check response message is 'Login successful'\r",
+											"pm.test(\"Response message is 'Login successful'\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"Login successful\");\r",
+											"});\r",
+											"\r",
+											"\r",
+											"// save the token and user ID to environment variables\r",
+											"if (pm.response.code === 200 && pm.response.json().success) {\r",
+											"    pm.environment.set(\"authToken_userId2\", pm.response.json().data.token);\r",
+											"    pm.environment.set(\"userId_2\", pm.response.json().data.id);\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "email",
+											"value": "sv_test_user2@email.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "sv_test_user2_pw",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseURL}}/users/login",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"users",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "positive - delete user 2",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// test to check response status code is 200\r",
+											"pm.test(\"Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"// test to check response time\r",
+											"pm.test(\"Response time is less than 1000ms\", function () {\r",
+											"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+											"    console.log(\"Response time:\", pm.response.responseTime);\r",
+											"});\r",
+											"\r",
+											"// test to check response message is 'Account successfully deleted'\r",
+											"pm.test(\"Response message is 'Account successfully deleted'\", function () {\r",
+											"    pm.expect(pm.response.text()).to.include(\"Account successfully deleted\");\r",
+											"});\r",
+											"\r",
+											"// clean up token and user_id1 valiables values\r",
+											"console.log(\"Delete User Account Response:\");\r",
+											"console.log(\"Status: \" + pm.response.code);\r",
+											"console.log(\"Response Body: \" + JSON.stringify(pm.response.json()));\r",
+											"\r",
+											"if (pm.response.code === 200 && pm.response.json().success) {\r",
+											"    console.log(\"Account deletion successful. Clearing authToken and userId.\");\r",
+											"    pm.environment.unset(\"authToken_userId2\");\r",
+											"    pm.environment.unset(\"userId_2\");\r",
+											"} else {\r",
+											"    console.log(\"Account deletion failed or unexpected response.\");\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-auth-token",
+										"value": "{{authToken_userId2}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseURL}}/users/delete-account",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"users",
+										"delete-account"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Suite is added to delete test data which was create during test run."
+				}
+			]
+		}
+	]
+}
