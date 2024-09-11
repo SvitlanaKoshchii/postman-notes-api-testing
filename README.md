@@ -48,3 +48,16 @@ The collection supports both functional and non-functional testing, providing a 
 5. Select the **Run Manually** option.
 6. Press the **Run Notes API** button.
 
+## GitHub Actions Workflows
+
+This repository includes two GitHub Actions workflows that automate the execution of API tests:
+
+1. **Run API Tests via Postman CLI**: This workflow uses the Postman CLI to execute the Postman collection directly. It is designed for environments where Postman CLI is preferred or where additional Postman-specific features are needed during test execution.
+
+2. **Run API Tests via Newman**: This workflow uses Newman, the command-line tool for running Postman collections, to execute the tests. It is optimized for environments where lightweight command-line execution is preferred and provides a streamlined way to integrate Postman tests into CI/CD pipelines. This workflow also includes the generation of an HTML report, which is saved as an artifact for review.
+
+Both workflows automatically execute the API test cases defined in the Postman collection whenever changes are made to the repository.
+
+### Key Features:
+- **Run API Tests via Postman CLI**: Provides detailed output from the Postman CLI with Postman-specific features.
+- **Run API Tests via Newman**: A lightweight and efficient method for running Postman collections in CI environments. Includes generation of an HTML report, available as an artifact for detailed analysis.
