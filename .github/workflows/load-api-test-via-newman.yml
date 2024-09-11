@@ -1,0 +1,33 @@
+name: Run Load Tests via Newman
+
+on:
+  workflow_dispatch:  # allows manual triggering
+  push:
+    branches:
+      - main 
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'
+
+    - name: Install Newman
+      run: npm install -g newman 
+
+    - name: Run Load Test with Newman
+      run: |
+        newman run NotesAPI.postman_collection.json -e NotesAPIenvironment.postman_environment.json --iteration-count 100 --delay-request 1000 --reporters cli,html --reporter-html-export newman-loadtest-report.html
+
+    - name: Upload Load Test Report
+      uses: actions/upload-artifact@v3 
+      with:
+        name: LoadTestReport
+        path: newman-loadtest-report.html 
