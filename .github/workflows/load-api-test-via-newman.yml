@@ -2,9 +2,6 @@ name: Run Load Tests via Newman
 
 on:
   workflow_dispatch:  # allows manual triggering
-  push:
-    branches:
-      - main 
 
 jobs:
   load-test:
