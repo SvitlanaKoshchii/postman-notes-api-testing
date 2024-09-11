@@ -2,7 +2,10 @@
 
 This repository contains automated API tests for the Notes API, implemented using Postman. The tests are orchestrated with a GitHub Actions pipeline but can also be executed locally without needing to run a GitHub Actions job during API test case creation.
 
-[![Automated API tests using Postman CLI](https://github.com/SvitlanaKoshchii/postman-notes-api-testing/actions/workflows/postman-workflow.yml/badge.svg)](https://github.com/SvitlanaKoshchii/postman-notes-api-testing/actions/workflows/postman-workflow.yml)
+[![Run API Tests via Postman CLI](https://github.com/SvitlanaKoshchii/postman-notes-api-testing/actions/workflows/run-api-tests-postman-cli.yml/badge.svg)](https://github.com/SvitlanaKoshchii/postman-notes-api-testing/actions/workflows/run-api-tests-postman-cli.yml)
+
+[![Run API Tests via Newman](https://github.com/SvitlanaKoshchii/postman-notes-api-testing/actions/workflows/run-api-tests-newman.yml/badge.svg)](https://github.com/SvitlanaKoshchii/postman-notes-api-testing/actions/workflows/run-api-tests-newman.yml)
+
 
 ## What is this repository for?
 
