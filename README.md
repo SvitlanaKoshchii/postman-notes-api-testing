@@ -57,14 +57,12 @@ This repository includes two GitHub Actions workflows that automate the executio
 2. [![Run API Tests via Newman](https://github.com/SvitlanaKoshchii/postman-notes-api-testing/actions/workflows/run-api-tests-newman.yml/badge.svg)](https://github.com/SvitlanaKoshchii/postman-notes-api-testing/actions/workflows/run-api-tests-newman.yml)
  This workflow uses Newman, the command-line tool for running Postman collections, to execute the tests. It is optimized for environments where lightweight command-line execution is preferred and provides a streamlined way to integrate Postman tests into CI/CD pipelines. This workflow also includes the generation of an HTML report, which is saved as an artifact for review.Automatically execute the API test cases defined in the Postman collection whenever changes are made to the repository.
 
-3. [![Run Load Tests via Newman](https://github.com/SvitlanaKoshchii/postman-notes-api-testing/actions/workflows/load-api-test-via-newman.yml/badge.svg)](https://github.com/SvitlanaKoshchii/postman-notes-api-testing/actions/workflows/load-api-test-via-newman.yml) This workflow runs load tests using Newman. It is manually triggered and executes the Postman collection with multiple iterations to simulate high-load conditions. The workflow generates an HTML report, which is uploaded as an artifact for further analysis.
+3. [![Run Load Tests via Newman](https://github.com/SvitlanaKoshchii/postman-notes-api-testing/actions/workflows/load-api-test-via-newman.yml/badge.svg)](https://github.com/SvitlanaKoshchii/postman-notes-api-testing/actions/workflows/load-api-test-via-newman.yml) This workflow runs load tests using Newman. It is manually triggered and executes the Postman collection with multiple iterations to simulate high-load conditions. The workflow generates an HTML report, which is uploaded as an artifact for further analysis. Key details of the workflow:
+     - **Manual trigger**: The workflow can be initiated manually via `workflow_dispatch` for flexibility.
+     - **Load testing**: Runs the Postman collection 100 times with a 1-second delay between requests to emulate real-world load conditions.
+     - **HTML report**: Generates an HTML report after the load test, which is saved as an artifact for review.
 
-**Key details of the workflow:**
-- **Manual trigger**: The workflow can be initiated manually via `workflow_dispatch` for flexibility.
-- **Load testing**: Runs the Postman collection 100 times with a 1-second delay between requests to emulate real-world load conditions.
-- **HTML report**: Generates an HTML report after the load test, which is saved as an artifact for review.
-
-### Key Features:
+#### Key Features:
 - **Run API Tests via Postman CLI**: Provides detailed output from the Postman CLI with Postman-specific features.
 - **Run API Tests via Newman**: A lightweight and efficient method for running Postman collections in CI environments. Includes generation of an HTML report, available as an artifact for detailed analysis.
 - **Run Load Tests via Newman**: Simulates load by running multiple iterations of the Postman collection and provides an HTML report for load test results.
