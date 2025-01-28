@@ -16,15 +16,17 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Install Newman
-      run: npm install -g newman 
+    - name: Install Newman and HTML Reporter
+      run: |
+        npm install -g newman
+        npm install -g newman-reporter-html
 
     - name: Run Load Test with Newman
       run: |
         newman run NotesAPI.postman_collection.json -e NotesAPIenvironment.postman_environment.json --iteration-count 100 --delay-request 1000 --reporters cli,html --reporter-html-export newman-loadtest-report.html
 
-    - name: Debug File Locations
-      run: find $PWD -type f
+    - name: List files in working directory
+      run: ls -al
 
     - name: Upload Load Test Report
       uses: actions/upload-artifact@v3 
