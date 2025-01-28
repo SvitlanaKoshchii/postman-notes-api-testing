@@ -23,14 +23,12 @@ jobs:
       run: |
         newman run NotesAPI.postman_collection.json -e NotesAPIenvironment.postman_environment.json --iteration-count 100 --delay-request 1000 --reporters cli,html --reporter-html-export newman-loadtest-report.html
 
-    - name: List files in working directory
-      run: ls -al
-
-    - name: Find HTML report
-      run: find $PWD -name "newman-loadtest-report.html"
+    - name: Debug File Locations
+      run: find $PWD -type f
 
     - name: Upload Load Test Report
       uses: actions/upload-artifact@v3 
       with:
         name: LoadTestReport
         path: newman-loadtest-report.html
+        if-no-files-found: warn
