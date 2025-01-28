@@ -27,10 +27,10 @@ jobs:
       run: ls -al
 
     - name: Find HTML report
-      run: find . -name "newman-loadtest-report.html"
+      run: find $PWD -name "newman-loadtest-report.html"
 
     - name: Upload Load Test Report
       uses: actions/upload-artifact@v3 
       with:
         name: LoadTestReport
-        path: ./newman-loadtest-report.html  # Make sure the correct path is used
+        path: newman-loadtest-report.html
